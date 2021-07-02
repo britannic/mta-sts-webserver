@@ -1,15 +1,25 @@
-# Docker MTA-STS Webserver
+# Docker Webserver MTA-STS policy file
 
-Simple minimalistic webserver in 30 lines of Go code which serves the needed MTA-STS file for tls mail exchange enforcing.
+Docker Webserver for MTA-STS policy file to enforce secured mail exchange.<br />
+Simple, minimalistic 30 lines of go code to implement the mta-sts policy file as described in [RFC8461 Secion 3.2](https://datatracker.ietf.org/doc/html/rfc8461#section-3.2).
 
-## Example Setup with environment variables
+## Example Usage with docker-compose and traefik webserver
 
 ````
-STS_MODE=testing
-STS_MAX_AGE=86400
-STS_SERVERS=mx1.example.tld,mx2.example.tld,mx3.example.tld
+version: '3'
+
+services:
+  mta-sts:
+    image: mta-sts:1.0
+    build: https://github.com/zerotens/mta-sts-webserver
+    restart: always
+    environment:
+      - "STS_MODE=testing"
+      - "STS_MAX_AGE=3600"
+      - "STS_SERVERS=mx.example.org"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mta-sts.entrypoints=web-secure"
+      - "traefik.http.routers.mta-sts.tls=true"
+      - "traefik.http.routers.mta-sts.rule=Host(`mta-sts.example.org`)"
 ````
-
-## Example Usage in docker-compose Stack with Traefik
-
-TODO
